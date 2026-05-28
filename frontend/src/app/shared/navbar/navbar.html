@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" routerLink="/tasks">
+      <i class="bi bi-check2-square me-2"></i>
+      TodoApp
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+      <a class="nav-link" routerLink="/tasks" *ngIf="isLoggedIn">Tasks</a>
+      <a class="nav-link" routerLink="/categories" *ngIf="isLoggedIn">Categories</a>
+
+      <span class="text-muted small" *ngIf="isLoggedIn">{{ email }}</span>
+
+      <button class="btn btn-outline-danger btn-sm" *ngIf="isLoggedIn" (click)="logout()">
+        Logout
+      </button>
+
+      <a class="btn btn-outline-primary btn-sm" routerLink="/login" *ngIf="!isLoggedIn">
+        Login
+      </a>
+    </div>
+  </div>
+</nav>

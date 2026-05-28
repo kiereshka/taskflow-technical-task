@@ -1,0 +1,31 @@
+.card {
+  border: 0;
+  border-radius: 18px;
+}
+
+.task-item {
+  border-left: 0;
+  border-right: 0;
+}
+
+.task-item:first-child {
+  border-top: 0;
+}
+
+.task-item:last-child {
+  border-bottom: 0;
+}
+
+.task-completed {
+  background: #f8f9fa;
+
+  h3,
+  p {
+    text-decoration: line-through;
+    color: #6c757d;
+  }
+}
+
+.badge {
+  font-weight: 500;
+}
