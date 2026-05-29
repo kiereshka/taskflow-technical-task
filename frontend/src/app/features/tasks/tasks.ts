@@ -30,6 +30,7 @@ export class Tasks implements OnInit {
 
   search = '';
   selectedCategoryId: number | null = null;
+  selectedStatus: string | null = null;
 
   page = 1;
   pageSize = 10;
@@ -46,12 +47,20 @@ export class Tasks implements OnInit {
     this.loadTasks();
   }
 
-  get activeTasks(): number {
-    return this.tasks.filter((task) => !task.isCompleted).length;
+  get visibleRangeStart(): number {
+    if (this.totalItems === 0) {
+      return 0;
+    }
+
+    return (this.page - 1) * this.pageSize + 1;
   }
 
-  get completedTasks(): number {
-    return this.tasks.filter((task) => task.isCompleted).length;
+  get visibleRangeEnd(): number {
+    return Math.min(this.page * this.pageSize, this.totalItems);
+  }
+
+  get visibleItemsCount(): number {
+    return this.tasks.length;
   }
 
   loadCategories(): void {
@@ -77,6 +86,7 @@ export class Tasks implements OnInit {
         pageSize: this.pageSize,
         search: this.search,
         categoryId: this.selectedCategoryId,
+        status: this.selectedStatus,
       })
       .subscribe({
         next: (result) => {
@@ -229,6 +239,13 @@ export class Tasks implements OnInit {
   clearFilters(): void {
     this.search = '';
     this.selectedCategoryId = null;
+    this.selectedStatus = null;
+    this.page = 1;
+    this.loadTasks();
+  }
+
+  changePageSize(value: string): void {
+    this.pageSize = Number(value);
     this.page = 1;
     this.loadTasks();
   }

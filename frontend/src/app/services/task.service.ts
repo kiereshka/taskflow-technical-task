@@ -29,6 +29,10 @@ export class TaskService {
       params = params.set('categoryId', query.categoryId);
     }
 
+    if (query.status) {
+      params = params.set('status', query.status);
+    }
+
     return this.http.get<PagedResult<TaskItem>>(this.apiUrl, { params });
   }
 

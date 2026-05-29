@@ -1,38 +1,63 @@
 <section class="auth-page">
-  <div class="card auth-card shadow-sm">
-    <div class="card-body p-4">
-      <div class="text-center mb-4">
-        <div class="auth-brand mx-auto mb-3">
-          <i class="bi bi-check2"></i>
-        </div>
-        <h1 class="h3 mb-2">Sign in to TaskFlow</h1>
-        <p class="text-muted mb-0">Manage your tasks, categories and daily priorities.</p>
+  <div class="auth-shell">
+    <div class="auth-preview d-none d-lg-grid">
+      <div>
+        <p class="eyebrow">TaskFlow</p>
+        <h1>Daily planning that feels ready for work.</h1>
+        <p>Categories, search, pagination and a focused dashboard in one productivity app.</p>
       </div>
 
-      <div class="alert alert-danger" *ngIf="errorMessage">
-        {{ errorMessage }}
+      <div class="preview-card">
+        <div class="preview-row complete">
+          <i class="bi bi-check2-circle"></i>
+          <span>Review sprint tasks</span>
+        </div>
+        <div class="preview-row">
+          <i class="bi bi-circle"></i>
+          <span>Filter by Work category</span>
+        </div>
+        <div class="preview-row urgent">
+          <i class="bi bi-calendar-event"></i>
+          <span>Prioritize due today</span>
+        </div>
       </div>
+    </div>
 
-      <form (ngSubmit)="submit()">
-        <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input class="form-control" type="email" name="email" [(ngModel)]="email" required />
+    <div class="card auth-card shadow-sm">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <div class="auth-brand mx-auto mb-3">
+            <i class="bi bi-check2"></i>
+          </div>
+          <h1 class="h3 mb-2">Sign in to TaskFlow</h1>
+          <p class="text-muted mb-0">Manage your tasks, categories and daily priorities.</p>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input class="form-control" type="password" name="password" [(ngModel)]="password" required />
+        <div class="alert alert-danger" *ngIf="errorMessage">
+          {{ errorMessage }}
         </div>
 
-        <button class="btn btn-primary w-100" type="submit" [disabled]="isLoading">
-          {{ isLoading ? 'Signing in...' : 'Sign in' }}
-        </button>
-      </form>
+        <form (ngSubmit)="submit()">
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" [(ngModel)]="email" required />
+          </div>
 
-      <p class="mt-3 mb-0 text-center">
-        No account?
-        <a routerLink="/register">Create one</a>
-      </p>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input class="form-control" type="password" name="password" [(ngModel)]="password" required />
+          </div>
+
+          <button class="btn btn-primary w-100" type="submit" [disabled]="isLoading">
+            {{ isLoading ? 'Signing in...' : 'Sign in' }}
+          </button>
+        </form>
+
+        <p class="mt-3 mb-0 text-center">
+          No account?
+          <a routerLink="/register">Create one</a>
+        </p>
+      </div>
     </div>
   </div>
 </section>

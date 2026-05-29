@@ -3,7 +3,12 @@
     <div>
       <p class="eyebrow">Workspace</p>
       <h1 class="mb-1">Tasks</h1>
-      <p class="text-muted mb-0">Plan priorities, track status and keep work moving.</p>
+      <p class="page-subtitle">Plan priorities, track status, search across work and keep every category moving.</p>
+    </div>
+
+    <div class="task-progress">
+      <span>{{ visibleItemsCount }}</span>
+      <small>tasks on this page</small>
     </div>
   </div>
 
@@ -12,27 +17,31 @@
       <div class="metric-card">
         <div class="metric-label">Total tasks</div>
         <div class="metric-value">{{ totalItems }}</div>
+        <div class="metric-footnote">Matching current filters</div>
       </div>
     </div>
 
     <div class="col-sm-6 col-xl-3">
-      <div class="metric-card">
-        <div class="metric-label">Active tasks</div>
-        <div class="metric-value">{{ activeTasks }}</div>
+      <div class="metric-card accent">
+        <div class="metric-label">Current page</div>
+        <div class="metric-value">{{ page }}</div>
+        <div class="metric-footnote">Of {{ totalPages || 1 }} pages</div>
       </div>
     </div>
 
     <div class="col-sm-6 col-xl-3">
-      <div class="metric-card">
-        <div class="metric-label">Completed tasks</div>
-        <div class="metric-value">{{ completedTasks }}</div>
+      <div class="metric-card success">
+        <div class="metric-label">Page size</div>
+        <div class="metric-value">{{ pageSize }}</div>
+        <div class="metric-footnote">Items requested per page</div>
       </div>
     </div>
 
     <div class="col-sm-6 col-xl-3">
-      <div class="metric-card">
+      <div class="metric-card warning">
         <div class="metric-label">Categories</div>
         <div class="metric-value">{{ categories.length }}</div>
+        <div class="metric-footnote">Available for filtering</div>
       </div>
     </div>
   </div>
@@ -47,15 +56,17 @@
 
   <div class="row g-4">
     <div class="col-lg-4">
-      <div class="app-card p-4 h-100">
-        <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="app-card p-4 task-editor-card">
+        <div class="card-title-row">
           <div>
             <p class="eyebrow mb-1">Task editor</p>
             <h2 class="h5 mb-0">
               {{ editingTaskId ? 'Edit task' : 'Create task' }}
             </h2>
           </div>
-          <i class="bi bi-pencil-square text-primary fs-4"></i>
+          <span class="card-title-icon">
+            <i class="bi bi-pencil-square"></i>
+          </span>
         </div>
 
         <form class="row g-3" (ngSubmit)="submit()">
@@ -125,8 +136,8 @@
           </div>
 
           <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary flex-fill" type="submit" [disabled]="isSubmitting">
-              <i class="bi bi-check2-circle me-1"></i>
+            <button class="btn btn-primary btn-icon flex-fill" type="submit" [disabled]="isSubmitting">
+              <i class="bi bi-check2-circle"></i>
               {{ isSubmitting ? 'Saving...' : editingTaskId ? 'Update task' : 'Create task' }}
             </button>
 
@@ -145,9 +156,9 @@
     </div>
 
     <div class="col-lg-8">
-      <div class="app-card p-4 mb-4">
+      <div class="app-card p-4 mb-4 filter-card">
         <form class="row g-3 align-items-end" (ngSubmit)="applyFilters()">
-          <div class="col-md-6">
+          <div class="col-lg-5 col-md-6">
             <label class="form-label">Search</label>
             <div class="input-group">
               <span class="input-group-text bg-white">
@@ -162,7 +173,7 @@
             </div>
           </div>
 
-          <div class="col-md-3">
+          <div class="col-lg-3 col-md-6">
             <label class="form-label">Category</label>
             <select class="form-select" name="selectedCategoryId" [(ngModel)]="selectedCategoryId">
               <option [ngValue]="null">All categories</option>
@@ -172,12 +183,34 @@
             </select>
           </div>
 
-          <div class="col-md-3 d-flex gap-2">
-            <button class="btn btn-outline-primary flex-fill" type="submit">
+          <div class="col-lg-2 col-md-6">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="selectedStatus" [(ngModel)]="selectedStatus">
+              <option [ngValue]="null">All</option>
+              <option value="active">Active</option>
+              <option value="overdue">Overdue</option>
+              <option value="today">Due today</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <div class="col-lg-2 col-md-6">
+            <label class="form-label">Page size</label>
+            <select class="form-select" name="pageSize" [ngModel]="pageSize" (ngModelChange)="changePageSize($event)">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="20">20</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-primary btn-icon" type="submit">
+              <i class="bi bi-funnel"></i>
               Apply
             </button>
 
-            <button class="btn btn-outline-secondary" type="button" (click)="clearFilters()">
+            <button class="btn btn-outline-secondary btn-icon" type="button" (click)="clearFilters()">
+              <i class="bi bi-x-circle"></i>
               Clear
             </button>
           </div>
@@ -185,12 +218,14 @@
       </div>
 
       <div class="app-card p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="list-toolbar">
           <div>
             <p class="eyebrow mb-1">Task list</p>
             <h2 class="h5 mb-0">Current work</h2>
           </div>
-          <span class="text-muted small">Page {{ page }} of {{ totalPages || 1 }}</span>
+          <span class="list-count">
+            {{ visibleRangeStart }}-{{ visibleRangeEnd }} of {{ totalItems }}
+          </span>
         </div>
 
         <div *ngIf="isLoading" class="loading-state">
@@ -246,13 +281,13 @@
             </div>
 
             <div class="task-actions">
-              <button class="btn btn-outline-primary btn-sm" type="button" (click)="startEdit(task)">
-                <i class="bi bi-pencil me-1"></i>
+              <button class="btn btn-outline-primary btn-sm btn-icon" type="button" (click)="startEdit(task)">
+                <i class="bi bi-pencil"></i>
                 Edit
               </button>
 
-              <button class="btn btn-outline-danger btn-sm" type="button" (click)="deleteTask(task)">
-                <i class="bi bi-trash me-1"></i>
+              <button class="btn btn-outline-danger btn-sm btn-icon" type="button" (click)="deleteTask(task)">
+                <i class="bi bi-trash"></i>
                 Delete
               </button>
             </div>

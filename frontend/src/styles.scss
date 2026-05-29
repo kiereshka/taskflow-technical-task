@@ -4,16 +4,32 @@
 :root {
   --taskflow-primary: #2563eb;
   --taskflow-primary-dark: #1d4ed8;
+  --taskflow-accent: #0f766e;
+  --taskflow-warning: #d97706;
+  --taskflow-danger: #dc2626;
   --taskflow-surface: #ffffff;
+  --taskflow-surface-soft: #f8fafc;
   --taskflow-border: #e2e8f0;
   --taskflow-text: #0f172a;
   --taskflow-muted: #64748b;
-  --taskflow-bg: #f4f7fb;
+  --taskflow-bg: #eef3f8;
+  --taskflow-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --taskflow-shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.06);
 }
 
 body {
-  background: var(--taskflow-bg);
+  background:
+    linear-gradient(180deg, #f8fbff 0, var(--taskflow-bg) 330px),
+    var(--taskflow-bg);
   color: var(--taskflow-text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   min-height: 100vh;
 }
 
@@ -22,8 +38,8 @@ main {
 }
 
 .page-shell {
-  padding-bottom: 3rem;
-  padding-top: 2rem;
+  padding-bottom: 3.5rem;
+  padding-top: 1.6rem;
 }
 
 .page-header {
@@ -31,11 +47,21 @@ main {
   display: flex;
   gap: 1rem;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.35rem;
+}
+
+.page-header h1 {
+  font-weight: 750;
+}
+
+.page-subtitle {
+  color: var(--taskflow-muted);
+  margin-bottom: 0;
+  max-width: 760px;
 }
 
 .eyebrow {
-  color: var(--taskflow-primary);
+  color: var(--taskflow-accent);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -48,15 +74,52 @@ main {
   background: var(--taskflow-surface);
   border: 1px solid var(--taskflow-border);
   border-radius: 8px;
-  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.07);
+  box-shadow: var(--taskflow-shadow-soft);
+}
+
+.app-card {
+  position: relative;
+}
+
+.card-title-row {
+  align-items: center;
+  display: flex;
+  gap: 0.85rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.card-title-icon {
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  color: var(--taskflow-primary);
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
 }
 
 .metric-card {
-  background: #fff;
+  background: var(--taskflow-surface);
   border: 1px solid var(--taskflow-border);
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-  padding: 1rem;
+  box-shadow: var(--taskflow-shadow-soft);
+  min-height: 112px;
+  padding: 1rem 1.05rem;
+}
+
+.metric-card.accent {
+  border-color: #99f6e4;
+}
+
+.metric-card.warning {
+  border-color: #fed7aa;
+}
+
+.metric-card.success {
+  border-color: #bbf7d0;
 }
 
 .metric-label {
@@ -67,14 +130,20 @@ main {
 
 .metric-value {
   color: var(--taskflow-text);
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   font-weight: 700;
   line-height: 1;
 }
 
+.metric-footnote {
+  color: var(--taskflow-muted);
+  font-size: 0.8rem;
+  margin-top: 0.65rem;
+}
+
 .empty-state {
   align-items: center;
-  background: #f8fafc;
+  background: var(--taskflow-surface-soft);
   border: 1px dashed #cbd5e1;
   border-radius: 8px;
   color: var(--taskflow-muted);
@@ -90,6 +159,41 @@ main {
   font-size: 2rem;
 }
 
+.loading-state {
+  align-items: center;
+  background: var(--taskflow-surface-soft);
+  border: 1px solid var(--taskflow-border);
+  border-radius: 8px;
+  color: var(--taskflow-muted);
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  border-color: var(--taskflow-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 0.22rem rgba(37, 99, 235, 0.12);
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 650;
+}
+
+.btn-icon {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.45rem;
+  justify-content: center;
+}
+
 .btn-primary {
   background: var(--taskflow-primary);
   border-color: var(--taskflow-primary);
@@ -102,6 +206,9 @@ main {
 }
 
 .auth-page {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(15, 118, 110, 0.08)),
+    var(--taskflow-bg);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -111,7 +218,13 @@ main {
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
+}
+
+.soft-divider {
+  background: var(--taskflow-border);
+  height: 1px;
+  margin: 1rem 0;
 }
 
 @media (max-width: 767.98px) {

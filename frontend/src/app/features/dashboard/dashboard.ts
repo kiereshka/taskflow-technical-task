@@ -45,6 +45,38 @@ export class Dashboard implements OnInit {
     return this.overview?.recentTasks ?? [];
   }
 
+  get completionRate(): number {
+    if (!this.totalTasks) {
+      return 0;
+    }
+
+    return Math.round((this.completedTasks / this.totalTasks) * 100);
+  }
+
+  get activeRate(): number {
+    if (!this.totalTasks) {
+      return 0;
+    }
+
+    return Math.round((this.activeTasks / this.totalTasks) * 100);
+  }
+
+  get focusLabel(): string {
+    if (!this.totalTasks) {
+      return 'Ready to plan';
+    }
+
+    if (this.completionRate >= 70) {
+      return 'Strong progress';
+    }
+
+    if (this.activeTasks > this.completedTasks) {
+      return 'Execution mode';
+    }
+
+    return 'Balanced workload';
+  }
+
   loadOverview(): void {
     this.isLoading = true;
     this.errorMessage = '';

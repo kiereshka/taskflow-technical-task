@@ -39,4 +39,5 @@ export interface TaskQueryParams {
   pageSize: number;
   search?: string;
   categoryId?: number | null;
+  status?: string | null;
 }

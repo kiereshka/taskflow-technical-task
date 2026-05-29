@@ -1,6 +1,6 @@
 # TaskFlow
 
-TaskFlow is a full-stack productivity dashboard for organizing tasks by category, completion status and due date. It is built as an interview-ready technical task with a clean Angular frontend and a layered ASP.NET Core REST API.
+TaskFlow is a full-stack productivity dashboard for organizing tasks by category, completion status and due date. It combines a clean Angular frontend with a layered ASP.NET Core REST API.
 
 ## Tech Stack
 

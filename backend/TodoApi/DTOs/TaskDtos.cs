@@ -69,4 +69,6 @@ public class TaskQueryParametersDto
     public string? Search { get; set; }
 
     public int? CategoryId { get; set; }
+
+    public string? Status { get; set; }
 }

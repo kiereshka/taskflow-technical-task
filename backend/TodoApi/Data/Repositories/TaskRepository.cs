@@ -44,11 +44,43 @@ public class TaskRepository : ITaskRepository
             tasksQuery = tasksQuery.Where(task => task.CategoryId == query.CategoryId.Value);
         }
 
+        var today = DateTime.UtcNow.Date;
+        var tomorrow = today.AddDays(1);
+        var status = query.Status?.Trim().ToLowerInvariant();
+
+        tasksQuery = status switch
+        {
+            "active" => tasksQuery.Where(task =>
+                !task.IsCompleted &&
+                (task.DueDate == null || task.DueDate >= tomorrow)),
+            "overdue" => tasksQuery.Where(task =>
+                !task.IsCompleted &&
+                task.DueDate != null &&
+                task.DueDate < today),
+            "today" => tasksQuery.Where(task =>
+                !task.IsCompleted &&
+                task.DueDate != null &&
+                task.DueDate >= today &&
+                task.DueDate < tomorrow),
+            "completed" => tasksQuery.Where(task => task.IsCompleted),
+            _ => tasksQuery
+        };
+
         var totalItems = await tasksQuery.CountAsync();
 
         var items = await tasksQuery
-            .OrderBy(task => task.IsCompleted)
-            .ThenByDescending(task => task.CreatedAt)
+            .OrderBy(task =>
+                task.IsCompleted
+                    ? 4
+                    : task.DueDate != null && task.DueDate < today
+                        ? 0
+                        : task.DueDate != null && task.DueDate < tomorrow
+                            ? 1
+                            : task.DueDate != null
+                                ? 2
+                                : 3)
+            .ThenBy(task => task.DueDate ?? DateTime.MaxValue)
+            .ThenByDescending(task => task.UpdatedAt ?? task.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -108,7 +140,7 @@ public class TaskRepository : ITaskRepository
             .AsNoTracking()
             .Include(task => task.Category)
             .Where(task => task.UserId == userId)
-            .OrderByDescending(task => task.CreatedAt)
+            .OrderByDescending(task => task.UpdatedAt ?? task.CreatedAt)
             .Take(5)
             .Select(task => new TaskResponseDto
             {
