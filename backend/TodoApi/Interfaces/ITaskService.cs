@@ -6,6 +6,8 @@ public interface ITaskService
 {
     Task<PagedResultDto<TaskResponseDto>> GetPagedAsync(TaskQueryParametersDto query, int userId);
 
+    Task<TaskOverviewDto> GetOverviewAsync(int userId);
+
     Task<TaskResponseDto> GetByIdAsync(int id, int userId);
 
     Task<TaskResponseDto> CreateAsync(TaskCreateDto request, int userId);

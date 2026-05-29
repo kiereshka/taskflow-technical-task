@@ -1,21 +1,47 @@
-<nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top app-navbar">
   <div class="container">
-    <a class="navbar-brand fw-bold" routerLink="/tasks">
-      <i class="bi bi-check2-square me-2"></i>
-      TodoApp
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" routerLink="/tasks">
+      <span class="brand-mark">
+        <i class="bi bi-check2"></i>
+      </span>
+      TaskFlow
     </a>
 
-    <div class="d-flex align-items-center gap-3">
-      <a class="nav-link" routerLink="/tasks" *ngIf="isLoggedIn">Tasks</a>
-      <a class="nav-link" routerLink="/categories" *ngIf="isLoggedIn">Categories</a>
+    <div class="d-flex align-items-center gap-2 gap-md-3">
+      <a
+        class="nav-link"
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        *ngIf="isLoggedIn"
+      >
+        Dashboard
+      </a>
 
-      <span class="text-muted small" *ngIf="isLoggedIn">{{ email }}</span>
+      <a class="nav-link" routerLink="/tasks" routerLinkActive="active" *ngIf="isLoggedIn">
+        Tasks
+      </a>
 
-      <button class="btn btn-outline-danger btn-sm" *ngIf="isLoggedIn" (click)="logout()">
+      <a
+        class="nav-link"
+        routerLink="/categories"
+        routerLinkActive="active"
+        *ngIf="isLoggedIn"
+      >
+        Categories
+      </a>
+
+      <span class="user-pill d-none d-md-inline-flex" *ngIf="isLoggedIn">
+        <i class="bi bi-person-circle"></i>
+        {{ email }}
+      </span>
+
+      <button class="btn btn-outline-danger btn-sm" type="button" *ngIf="isLoggedIn" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-1"></i>
         Logout
       </button>
 
       <a class="btn btn-outline-primary btn-sm" routerLink="/login" *ngIf="!isLoggedIn">
+        <i class="bi bi-box-arrow-in-right me-1"></i>
         Login
       </a>
     </div>

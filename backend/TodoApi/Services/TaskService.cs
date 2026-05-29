@@ -29,6 +29,11 @@ public class TaskService : ITaskService
         };
     }
 
+    public async Task<TaskOverviewDto> GetOverviewAsync(int userId)
+    {
+        return await _taskRepository.GetOverviewAsync(userId);
+    }
+
     public async Task<TaskResponseDto> GetByIdAsync(int id, int userId)
     {
         var task = await _taskRepository.GetByIdAsync(id, userId);

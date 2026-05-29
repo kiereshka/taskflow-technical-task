@@ -1,4 +1,15 @@
 .card {
   border: 0;
-  border-radius: 18px;
+  border-radius: 8px;
+}
+
+.auth-brand {
+  align-items: center;
+  background: #2563eb;
+  border-radius: 8px;
+  color: #fff;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
 }

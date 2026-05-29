@@ -21,6 +21,21 @@ public class TaskResponseDto
     public string? CategoryName { get; set; }
 }
 
+public class TaskOverviewDto
+{
+    public int TotalTasks { get; set; }
+
+    public int ActiveTasks { get; set; }
+
+    public int CompletedTasks { get; set; }
+
+    public int CategoriesCount { get; set; }
+
+    public IEnumerable<TaskResponseDto> UpcomingTasks { get; set; } = [];
+
+    public IEnumerable<TaskResponseDto> RecentTasks { get; set; } = [];
+}
+
 public class TaskCreateDto
 {
     public string Title { get; set; } = string.Empty;

@@ -28,6 +28,16 @@ public class TasksController : ControllerBase
         return Ok(tasks);
     }
 
+    [HttpGet("overview")]
+    public async Task<ActionResult<TaskOverviewDto>> GetOverview()
+    {
+        var userId = GetCurrentUserId();
+
+        var overview = await _taskService.GetOverviewAsync(userId);
+
+        return Ok(overview);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskResponseDto>> GetById(int id)
     {

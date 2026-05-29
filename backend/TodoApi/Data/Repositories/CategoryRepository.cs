@@ -17,6 +17,7 @@ public class CategoryRepository : ICategoryRepository
     public async Task<IEnumerable<Category>> GetAllByUserIdAsync(int userId)
     {
         return await _context.Categories
+            .AsNoTracking()
             .Where(category => category.UserId == userId)
             .OrderBy(category => category.Name)
             .ToListAsync();
@@ -25,6 +26,7 @@ public class CategoryRepository : ICategoryRepository
     public async Task<Category?> GetByIdAsync(int id, int userId)
     {
         return await _context.Categories
+            .AsNoTracking()
             .FirstOrDefaultAsync(category => category.Id == id && category.UserId == userId);
     }
 
@@ -80,17 +82,19 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<bool> ExistsByNameAsync(string name, int userId)
     {
-        var normalizedName = name.Trim().ToLower();
+        var normalizedName = name.Trim();
 
         return await _context.Categories
+            .AsNoTracking()
             .AnyAsync(category =>
                 category.UserId == userId &&
-                category.Name.ToLower() == normalizedName);
+                category.Name == normalizedName);
     }
 
     public async Task<bool> ExistsByIdAsync(int id, int userId)
     {
         return await _context.Categories
+            .AsNoTracking()
             .AnyAsync(category => category.Id == id && category.UserId == userId);
     }
 }

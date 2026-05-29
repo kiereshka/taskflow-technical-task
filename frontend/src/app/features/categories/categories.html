@@ -1,8 +1,14 @@
-<div class="container py-4">
-  <div class="d-flex align-items-center justify-content-between mb-4">
+<div class="container page-shell">
+  <div class="page-header">
     <div>
+      <p class="eyebrow">Organization</p>
       <h1 class="mb-1">Categories</h1>
-      <p class="text-muted mb-0">Create and manage task categories.</p>
+      <p class="text-muted mb-0">Group work into clear areas like Work, Study or Personal.</p>
+    </div>
+
+    <div class="metric-card category-count">
+      <div class="metric-label">Total categories</div>
+      <div class="metric-value">{{ categories.length }}</div>
     </div>
   </div>
 
@@ -14,65 +20,91 @@
     {{ successMessage }}
   </div>
 
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <form class="row g-3 align-items-end" (ngSubmit)="submit()">
-        <div class="col-md-8">
-          <label class="form-label">Category name</label>
-          <input
-            class="form-control"
-            name="name"
-            [(ngModel)]="name"
-            placeholder="For example: Work, Study, Home"
-          />
-        </div>
-
-        <div class="col-md-4 d-flex gap-2">
-          <button class="btn btn-primary flex-fill" type="submit">
-            {{ editingCategoryId ? 'Update' : 'Create' }}
-          </button>
-
-          <button
-            class="btn btn-outline-secondary"
-            type="button"
-            *ngIf="editingCategoryId"
-            (click)="cancelEdit()"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <div *ngIf="isLoading" class="text-muted">
-        Loading categories...
-      </div>
-
-      <div *ngIf="!isLoading && categories.length === 0" class="text-muted">
-        No categories yet.
-      </div>
-
-      <div class="list-group" *ngIf="!isLoading && categories.length > 0">
-        <div
-          class="list-group-item d-flex align-items-center justify-content-between"
-          *ngFor="let category of categories"
-        >
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="app-card p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
           <div>
-            <i class="bi bi-folder me-2 text-primary"></i>
-            <span class="fw-semibold">{{ category.name }}</span>
+            <p class="eyebrow mb-1">Category editor</p>
+            <h2 class="h5 mb-0">{{ editingCategoryId ? 'Edit category' : 'Create category' }}</h2>
+          </div>
+          <i class="bi bi-folder-plus text-primary fs-4"></i>
+        </div>
+
+        <form class="row g-3" (ngSubmit)="submit()">
+          <div class="col-12">
+            <label class="form-label">Category name</label>
+            <input
+              class="form-control"
+              name="name"
+              [(ngModel)]="name"
+              placeholder="For example: Work"
+              [disabled]="isSubmitting"
+            />
           </div>
 
-          <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary btn-sm" type="button" (click)="startEdit(category)">
-              Edit
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary flex-fill" type="submit" [disabled]="isSubmitting">
+              <i class="bi bi-check2-circle me-1"></i>
+              {{ isSubmitting ? 'Saving...' : editingCategoryId ? 'Update' : 'Create' }}
             </button>
 
-            <button class="btn btn-outline-danger btn-sm" type="button" (click)="deleteCategory(category)">
-              Delete
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              *ngIf="editingCategoryId"
+              (click)="cancelEdit()"
+              [disabled]="isSubmitting"
+            >
+              Cancel
             </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="app-card p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <p class="eyebrow mb-1">Library</p>
+            <h2 class="h5 mb-0">Your categories</h2>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading" class="loading-state">
+          <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          <span>Loading categories...</span>
+        </div>
+
+        <div *ngIf="!isLoading && categories.length === 0" class="empty-state">
+          <i class="bi bi-folder"></i>
+          <strong>No categories yet.</strong>
+          <span>Create categories like Work, Study or Personal to organize your tasks.</span>
+        </div>
+
+        <div class="category-grid" *ngIf="!isLoading && categories.length > 0">
+          <div class="category-card" *ngFor="let category of categories">
+            <div class="category-icon">
+              <i class="bi bi-folder2-open"></i>
+            </div>
+
+            <div class="category-content">
+              <span class="fw-semibold">{{ category.name }}</span>
+              <small class="text-muted">Task group</small>
+            </div>
+
+            <div class="category-actions">
+              <button class="btn btn-outline-primary btn-sm" type="button" (click)="startEdit(category)">
+                <i class="bi bi-pencil me-1"></i>
+                Edit
+              </button>
+
+              <button class="btn btn-outline-danger btn-sm" type="button" (click)="deleteCategory(category)">
+                <i class="bi bi-trash me-1"></i>
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>

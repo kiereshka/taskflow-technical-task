@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { CategoryService } from '../../services/category.service';
@@ -12,6 +12,7 @@ import { Category } from '../../models/category.models';
 })
 export class Categories implements OnInit {
   private readonly categoryService = inject(CategoryService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   categories: Category[] = [];
   name = '';
@@ -19,6 +20,7 @@ export class Categories implements OnInit {
   errorMessage = '';
   successMessage = '';
   isLoading = false;
+  isSubmitting = false;
 
   ngOnInit(): void {
     this.loadCategories();
@@ -32,10 +34,12 @@ export class Categories implements OnInit {
       next: (categories) => {
         this.categories = categories;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to load categories.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -86,36 +90,50 @@ export class Categories implements OnInit {
       next: () => {
         this.successMessage = 'Category deleted.';
         this.loadCategories();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to delete category.';
+        this.cdr.markForCheck();
       },
     });
   }
 
   private createCategory(name: string): void {
+    this.isSubmitting = true;
+
     this.categoryService.create({ name }).subscribe({
       next: () => {
         this.name = '';
         this.successMessage = 'Category created.';
+        this.isSubmitting = false;
         this.loadCategories();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to create category.';
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
       },
     });
   }
 
   private updateCategory(id: number, name: string): void {
+    this.isSubmitting = true;
+
     this.categoryService.update(id, { name }).subscribe({
       next: () => {
         this.name = '';
         this.editingCategoryId = null;
         this.successMessage = 'Category updated.';
+        this.isSubmitting = false;
         this.loadCategories();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to update category.';
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
       },
     });
   }

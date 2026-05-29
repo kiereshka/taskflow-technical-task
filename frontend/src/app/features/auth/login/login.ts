@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
@@ -13,6 +13,7 @@ import { AuthService } from '../../../services/auth.service';
 export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   email = '';
   password = '';
@@ -31,11 +32,13 @@ export class Login {
       .subscribe({
         next: () => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.router.navigate(['/tasks']);
         },
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.error?.message || 'Login failed.';
+          this.cdr.markForCheck();
         },
       });
   }

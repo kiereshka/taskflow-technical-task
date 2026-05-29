@@ -40,7 +40,7 @@ namespace TodoApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "Name");
 
                     b.ToTable("Categories");
                 });
@@ -84,7 +84,11 @@ namespace TodoApi.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "DueDate");
+
+                    b.HasIndex("UserId", "IsCompleted", "CreatedAt");
+
+                    b.HasIndex("UserId", "CategoryId", "IsCompleted", "CreatedAt");
 
                     b.ToTable("Tasks");
                 });

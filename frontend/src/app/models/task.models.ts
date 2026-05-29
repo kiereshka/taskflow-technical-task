@@ -10,6 +10,15 @@ export interface TaskItem {
   categoryName?: string | null;
 }
 
+export interface TaskOverview {
+  totalTasks: number;
+  activeTasks: number;
+  completedTasks: number;
+  categoriesCount: number;
+  upcomingTasks: TaskItem[];
+  recentTasks: TaskItem[];
+}
+
 export interface TaskCreateRequest {
   title: string;
   description?: string | null;

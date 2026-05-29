@@ -1,8 +1,104 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
+:root {
+  --taskflow-primary: #2563eb;
+  --taskflow-primary-dark: #1d4ed8;
+  --taskflow-surface: #ffffff;
+  --taskflow-border: #e2e8f0;
+  --taskflow-text: #0f172a;
+  --taskflow-muted: #64748b;
+  --taskflow-bg: #f4f7fb;
+}
+
 body {
-  background: #f5f7fb;
+  background: var(--taskflow-bg);
+  color: var(--taskflow-text);
+  min-height: 100vh;
+}
+
+main {
+  min-height: calc(100vh - 65px);
+}
+
+.page-shell {
+  padding-bottom: 3rem;
+  padding-top: 2rem;
+}
+
+.page-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  color: var(--taskflow-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+
+.dashboard-card,
+.app-card {
+  background: var(--taskflow-surface);
+  border: 1px solid var(--taskflow-border);
+  border-radius: 8px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.07);
+}
+
+.metric-card {
+  background: #fff;
+  border: 1px solid var(--taskflow-border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+  padding: 1rem;
+}
+
+.metric-label {
+  color: var(--taskflow-muted);
+  font-size: 0.86rem;
+  margin-bottom: 0.4rem;
+}
+
+.metric-value {
+  color: var(--taskflow-text);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.empty-state {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: var(--taskflow-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-state i {
+  color: #94a3b8;
+  font-size: 2rem;
+}
+
+.btn-primary {
+  background: var(--taskflow-primary);
+  border-color: var(--taskflow-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--taskflow-primary-dark);
+  border-color: var(--taskflow-primary-dark);
 }
 
 .auth-page {
@@ -16,4 +112,14 @@ body {
 .auth-card {
   width: 100%;
   max-width: 420px;
+}
+
+@media (max-width: 767.98px) {
+  .page-header {
+    display: block;
+  }
+
+  .page-shell {
+    padding-top: 1.25rem;
+  }
 }

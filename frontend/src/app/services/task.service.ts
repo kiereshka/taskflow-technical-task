@@ -5,16 +5,18 @@ import { PagedResult } from '../models/paged-result.models';
 import {
   TaskCreateRequest,
   TaskItem,
+  TaskOverview,
   TaskQueryParams,
   TaskUpdateRequest,
 } from '../models/task.models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5007/api/Tasks';
+  private readonly apiUrl = `${environment.apiUrl}/Tasks`;
 
   getPaged(query: TaskQueryParams): Observable<PagedResult<TaskItem>> {
     let params = new HttpParams().set('page', query.page).set('pageSize', query.pageSize);
@@ -28,6 +30,10 @@ export class TaskService {
     }
 
     return this.http.get<PagedResult<TaskItem>>(this.apiUrl, { params });
+  }
+
+  getOverview(): Observable<TaskOverview> {
+    return this.http.get<TaskOverview>(`${this.apiUrl}/overview`);
   }
 
   getById(id: number): Observable<TaskItem> {

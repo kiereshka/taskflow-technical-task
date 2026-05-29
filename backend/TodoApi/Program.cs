@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +64,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularClient", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins(
+                "http://localhost:4200",
+                "http://127.0.0.1:4200",
+                "http://localhost:63342",
+                "http://127.0.0.1:63342")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -110,6 +115,27 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("AllowAngularClient");
+
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Path.StartsWithSegments("/api"))
+    {
+        await next();
+        return;
+    }
+
+    var stopwatch = Stopwatch.StartNew();
+    await next();
+    stopwatch.Stop();
+
+    var logger = context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("ApiTiming");
+    logger.LogInformation(
+        "HTTP {Method} {Path} responded {StatusCode} in {ElapsedMilliseconds} ms",
+        context.Request.Method,
+        context.Request.Path,
+        context.Response.StatusCode,
+        stopwatch.ElapsedMilliseconds);
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

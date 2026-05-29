@@ -43,6 +43,8 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
+            entity.HasIndex(category => new { category.UserId, category.Name });
+
             entity.HasOne(category => category.User)
                 .WithMany(user => user.Categories)
                 .HasForeignKey(category => category.UserId)
@@ -62,6 +64,12 @@ public class AppDbContext : DbContext
 
             entity.Property(task => task.CreatedAt)
                 .IsRequired();
+
+            entity.HasIndex(task => new { task.UserId, task.IsCompleted, task.CreatedAt });
+
+            entity.HasIndex(task => new { task.UserId, task.CategoryId, task.IsCompleted, task.CreatedAt });
+
+            entity.HasIndex(task => new { task.UserId, task.DueDate });
 
             entity.HasOne(task => task.User)
                 .WithMany(user => user.Tasks)

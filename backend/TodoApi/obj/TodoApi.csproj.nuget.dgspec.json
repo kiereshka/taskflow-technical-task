@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\TodoApi\\TodoApi.csproj": {}
+    "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\todoapi\\TodoApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\TodoApi\\TodoApi.csproj": {
+    "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\todoapi\\TodoApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\TodoApi\\TodoApi.csproj",
+        "projectUniqueName": "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\todoapi\\TodoApi.csproj",
         "projectName": "TodoApi",
-        "projectPath": "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\TodoApi\\TodoApi.csproj",
+        "projectPath": "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\todoapi\\TodoApi.csproj",
         "packagesPath": "C:\\Users\\kiers\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\TodoApi\\obj\\",
+        "outputPath": "C:\\Users\\kiers\\WebstormProjects\\todo-technical-task\\backend\\todoapi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\kiers\\AppData\\Roaming\\NuGet\\NuGet.Config"

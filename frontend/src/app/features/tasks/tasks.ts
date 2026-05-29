@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { TaskService } from '../../services/task.service';
 import { CategoryService } from '../../services/category.service';
 import { TaskItem } from '../../models/task.models';
@@ -8,13 +8,14 @@ import { Category } from '../../models/category.models';
 
 @Component({
   selector: 'app-tasks',
-  imports: [FormsModule, NgFor, NgIf, DatePipe],
+  imports: [FormsModule, NgFor, NgIf, NgClass, DatePipe],
   templateUrl: './tasks.html',
   styleUrl: './tasks.scss',
 })
 export class Tasks implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly categoryService = inject(CategoryService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   tasks: TaskItem[] = [];
   categories: Category[] = [];
@@ -38,19 +39,30 @@ export class Tasks implements OnInit {
   errorMessage = '';
   successMessage = '';
   isLoading = false;
+  isSubmitting = false;
 
   ngOnInit(): void {
     this.loadCategories();
     this.loadTasks();
   }
 
+  get activeTasks(): number {
+    return this.tasks.filter((task) => !task.isCompleted).length;
+  }
+
+  get completedTasks(): number {
+    return this.tasks.filter((task) => task.isCompleted).length;
+  }
+
   loadCategories(): void {
     this.categoryService.getAll().subscribe({
       next: (categories) => {
         this.categories = categories;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to load categories.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -74,10 +86,12 @@ export class Tasks implements OnInit {
           this.totalItems = result.totalItems;
           this.totalPages = result.totalPages;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Failed to load tasks.';
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -93,6 +107,7 @@ export class Tasks implements OnInit {
       return;
     }
 
+    this.isSubmitting = true;
     const dueDateValue = this.dueDate ? new Date(this.dueDate).toISOString() : null;
 
     if (this.editingTaskId) {
@@ -107,11 +122,15 @@ export class Tasks implements OnInit {
         .subscribe({
           next: () => {
             this.successMessage = 'Task updated.';
+            this.isSubmitting = false;
             this.resetForm();
             this.loadTasks();
+            this.cdr.markForCheck();
           },
           error: (error) => {
             this.errorMessage = error.error?.message || 'Failed to update task.';
+            this.isSubmitting = false;
+            this.cdr.markForCheck();
           },
         });
 
@@ -128,11 +147,15 @@ export class Tasks implements OnInit {
       .subscribe({
         next: () => {
           this.successMessage = 'Task created.';
+          this.isSubmitting = false;
           this.resetForm();
           this.loadTasks();
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Failed to create task.';
+          this.isSubmitting = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -164,9 +187,11 @@ export class Tasks implements OnInit {
       .subscribe({
         next: () => {
           this.loadTasks();
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Failed to update task.';
+          this.cdr.markForCheck();
         },
       });
   }
@@ -187,9 +212,11 @@ export class Tasks implements OnInit {
         }
 
         this.loadTasks();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to delete task.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -215,6 +242,58 @@ export class Tasks implements OnInit {
     this.loadTasks();
   }
 
+  isOverdue(task: TaskItem): boolean {
+    const dueDate = this.toDateOnly(task.dueDate);
+
+    if (!dueDate || task.isCompleted) {
+      return false;
+    }
+
+    return dueDate < this.getToday();
+  }
+
+  isDueToday(task: TaskItem): boolean {
+    const dueDate = this.toDateOnly(task.dueDate);
+
+    if (!dueDate || task.isCompleted) {
+      return false;
+    }
+
+    return dueDate.getTime() === this.getToday().getTime();
+  }
+
+  getStatusLabel(task: TaskItem): string {
+    if (task.isCompleted) {
+      return 'Completed';
+    }
+
+    if (this.isOverdue(task)) {
+      return 'Overdue';
+    }
+
+    if (this.isDueToday(task)) {
+      return 'Due today';
+    }
+
+    return 'Active';
+  }
+
+  getStatusBadgeClass(task: TaskItem): string {
+    if (task.isCompleted) {
+      return 'status-completed';
+    }
+
+    if (this.isOverdue(task)) {
+      return 'status-overdue';
+    }
+
+    if (this.isDueToday(task)) {
+      return 'status-today';
+    }
+
+    return 'status-active';
+  }
+
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
@@ -226,5 +305,21 @@ export class Tasks implements OnInit {
     this.dueDate = '';
     this.categoryId = null;
     this.isCompleted = false;
+  }
+
+  private toDateOnly(value?: string | null): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  private getToday(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
   }
 }

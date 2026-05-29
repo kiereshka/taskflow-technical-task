@@ -1,8 +1,13 @@
 <section class="auth-page">
   <div class="card auth-card shadow-sm">
     <div class="card-body p-4">
-      <h1 class="h3 mb-3">Create account</h1>
-      <p class="text-muted mb-4">Register to start using TodoApp.</p>
+      <div class="text-center mb-4">
+        <div class="auth-brand mx-auto mb-3">
+          <i class="bi bi-check2"></i>
+        </div>
+        <h1 class="h3 mb-2">Create your TaskFlow account</h1>
+        <p class="text-muted mb-0">Start organizing tasks by category, status and priority.</p>
+      </div>
 
       <div class="alert alert-danger" *ngIf="errorMessage">
         {{ errorMessage }}
@@ -21,7 +26,7 @@
         </div>
 
         <button class="btn btn-primary w-100" type="submit" [disabled]="isLoading">
-          {{ isLoading ? 'Creating...' : 'Register' }}
+          {{ isLoading ? 'Creating...' : 'Create account' }}
         </button>
       </form>
 

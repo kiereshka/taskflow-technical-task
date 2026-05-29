@@ -1,7 +1,43 @@
+.app-navbar {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
 .navbar-brand {
-  color: #1f3b73;
+  color: #0f172a;
 }
 
 .nav-link {
+  border-radius: 999px;
+  color: #64748b;
   cursor: pointer;
+  font-size: 0.94rem;
+  padding: 0.45rem 0.8rem;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.brand-mark {
+  align-items: center;
+  background: #2563eb;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.user-pill {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  color: #475569;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.86rem;
 }

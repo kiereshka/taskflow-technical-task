@@ -1,0 +1,36 @@
+.loading-state {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.overview-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.overview-item {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.overview-item h3 {
+  overflow-wrap: anywhere;
+}
+
+.overview-item.compact i {
+  color: #2563eb;
+}
+
+.due-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
