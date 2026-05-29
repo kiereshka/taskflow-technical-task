@@ -1,0 +1,38 @@
+.not-found-shell {
+  margin: 3rem auto;
+  max-width: 640px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.not-found-icon {
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  color: #2563eb;
+  display: inline-flex;
+  font-size: 2rem;
+  height: 64px;
+  justify-content: center;
+  margin-bottom: 1rem;
+  width: 64px;
+}
+
+.not-found-shell h1 {
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.not-found-copy {
+  color: #64748b;
+  margin: 0 auto 1.25rem;
+  max-width: 460px;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}

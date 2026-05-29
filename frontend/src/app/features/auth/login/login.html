@@ -37,15 +37,33 @@
           {{ errorMessage }}
         </div>
 
-        <form (ngSubmit)="submit()">
+        <div class="alert alert-info" *ngIf="infoMessage">
+          {{ infoMessage }}
+        </div>
+
+        <form (ngSubmit)="submit()" novalidate>
           <div class="mb-3">
             <label class="form-label">Email</label>
-            <input class="form-control" type="email" name="email" [(ngModel)]="email" required />
+            <input
+              class="form-control"
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              [disabled]="isLoading"
+              autocomplete="email"
+            />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Password</label>
-            <input class="form-control" type="password" name="password" [(ngModel)]="password" required />
+            <input
+              class="form-control"
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              [disabled]="isLoading"
+              autocomplete="current-password"
+            />
           </div>
 
           <button class="btn btn-primary w-100" type="submit" [disabled]="isLoading">

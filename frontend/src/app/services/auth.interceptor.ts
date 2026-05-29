@@ -22,7 +22,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         localStorage.removeItem('todo_auth_email');
 
         if (!request.url.includes('/api/Auth/login')) {
-          router.navigate(['/login']);
+          router.navigate(['/login'], {
+            queryParams: { reason: 'session-expired' },
+          });
         }
       }
 

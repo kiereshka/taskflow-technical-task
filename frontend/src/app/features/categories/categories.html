@@ -3,7 +3,9 @@
     <div>
       <p class="eyebrow">Organization</p>
       <h1 class="mb-1">Categories</h1>
-      <p class="page-subtitle">Group work into clear areas, then use categories as fast filters across the task list.</p>
+      <p class="page-subtitle">
+        Group work into clear areas, then use categories as fast filters across the task list.
+      </p>
     </div>
 
     <div class="metric-card category-count accent">
@@ -47,7 +49,11 @@
           </div>
 
           <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary btn-icon flex-fill" type="submit" [disabled]="isSubmitting">
+            <button
+              class="btn btn-primary btn-icon flex-fill"
+              type="submit"
+              [disabled]="isSubmitting"
+            >
               <i class="bi bi-check2-circle"></i>
               {{ isSubmitting ? 'Saving...' : editingCategoryId ? 'Update' : 'Create' }}
             </button>
@@ -84,13 +90,27 @@
           <span>Loading categories...</span>
         </div>
 
-        <div *ngIf="!isLoading && categories.length === 0" class="empty-state">
+        <div *ngIf="!isLoading && hasLoadError" class="error-state">
+          <i class="bi bi-exclamation-triangle"></i>
+          <strong>Categories could not be loaded.</strong>
+          <span>Please check the connection and try again.</span>
+          <button
+            class="btn btn-outline-primary btn-sm btn-icon"
+            type="button"
+            (click)="loadCategories()"
+          >
+            <i class="bi bi-arrow-clockwise"></i>
+            Retry
+          </button>
+        </div>
+
+        <div *ngIf="!isLoading && !hasLoadError && categories.length === 0" class="empty-state">
           <i class="bi bi-folder"></i>
           <strong>No categories yet.</strong>
           <span>Create categories like Work, Study or Personal to organize your tasks.</span>
         </div>
 
-        <div class="category-grid" *ngIf="!isLoading && categories.length > 0">
+        <div class="category-grid" *ngIf="!isLoading && !hasLoadError && categories.length > 0">
           <div class="category-card" *ngFor="let category of categories; let index = index">
             <div class="category-icon">
               {{ index + 1 }}
@@ -102,12 +122,22 @@
             </div>
 
             <div class="category-actions">
-              <button class="btn btn-outline-primary btn-sm btn-icon" type="button" (click)="startEdit(category)">
+              <button
+                class="btn btn-outline-primary btn-sm btn-icon"
+                type="button"
+                (click)="startEdit(category)"
+                [disabled]="isCategoryPending(category)"
+              >
                 <i class="bi bi-pencil"></i>
                 Edit
               </button>
 
-              <button class="btn btn-outline-danger btn-sm btn-icon" type="button" (click)="deleteCategory(category)">
+              <button
+                class="btn btn-outline-danger btn-sm btn-icon"
+                type="button"
+                (click)="deleteCategory(category)"
+                [disabled]="isCategoryPending(category)"
+              >
                 <i class="bi bi-trash"></i>
                 Delete
               </button>

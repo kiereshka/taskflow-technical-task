@@ -37,15 +37,29 @@
           {{ errorMessage }}
         </div>
 
-        <form (ngSubmit)="submit()">
+        <form (ngSubmit)="submit()" novalidate>
           <div class="mb-3">
             <label class="form-label">Email</label>
-            <input class="form-control" type="email" name="email" [(ngModel)]="email" required />
+            <input
+              class="form-control"
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              [disabled]="isLoading"
+              autocomplete="email"
+            />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Password</label>
-            <input class="form-control" type="password" name="password" [(ngModel)]="password" required />
+            <input
+              class="form-control"
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              [disabled]="isLoading"
+              autocomplete="new-password"
+            />
             <div class="form-text">Minimum 6 characters.</div>
           </div>
 

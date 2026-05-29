@@ -15,6 +15,7 @@ export class Dashboard implements OnInit {
 
   overview: TaskOverview | null = null;
   errorMessage = '';
+  hasLoadError = false;
   isLoading = false;
 
   ngOnInit(): void {
@@ -45,6 +46,14 @@ export class Dashboard implements OnInit {
     return this.overview?.recentTasks ?? [];
   }
 
+  get latestTasks(): TaskItem[] {
+    return [...this.recentTasks].sort(
+      (firstTask, secondTask) =>
+        this.getActivityTime(secondTask) - this.getActivityTime(firstTask) ||
+        secondTask.id - firstTask.id,
+    );
+  }
+
   get completionRate(): number {
     if (!this.totalTasks) {
       return 0;
@@ -62,6 +71,14 @@ export class Dashboard implements OnInit {
   }
 
   get focusLabel(): string {
+    if (this.isLoading) {
+      return 'Loading overview';
+    }
+
+    if (this.hasLoadError) {
+      return 'Needs attention';
+    }
+
     if (!this.totalTasks) {
       return 'Ready to plan';
     }
@@ -80,6 +97,7 @@ export class Dashboard implements OnInit {
   loadOverview(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.hasLoadError = false;
 
     this.taskService.getOverview().subscribe({
       next: (overview) => {
@@ -89,9 +107,22 @@ export class Dashboard implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to load dashboard.';
+        this.hasLoadError = true;
         this.isLoading = false;
         this.cdr.markForCheck();
       },
     });
+  }
+
+  getActivityLabel(task: TaskItem): string {
+    return task.updatedAt ? 'Updated' : 'Created';
+  }
+
+  getActivityDate(task: TaskItem): string {
+    return task.updatedAt || task.createdAt;
+  }
+
+  private getActivityTime(task: TaskItem): number {
+    return new Date(this.getActivityDate(task)).getTime();
   }
 }

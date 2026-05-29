@@ -1,5 +1,5 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
-@import "bootstrap-icons/font/bootstrap-icons.css";
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
 
 :root {
   --taskflow-primary: #2563eb;
@@ -18,9 +18,7 @@
 }
 
 body {
-  background:
-    linear-gradient(180deg, #f8fbff 0, var(--taskflow-bg) 330px),
-    var(--taskflow-bg);
+  background: linear-gradient(180deg, #f8fbff 0, var(--taskflow-bg) 330px), var(--taskflow-bg);
   color: var(--taskflow-text);
   font-family:
     Inter,
@@ -28,7 +26,7 @@ body {
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
-    "Segoe UI",
+    'Segoe UI',
     sans-serif;
   min-height: 100vh;
 }
@@ -159,6 +157,28 @@ main {
   font-size: 2rem;
 }
 
+.error-state {
+  align-items: center;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  color: #9a3412;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-state i {
+  color: #d97706;
+  font-size: 2rem;
+}
+
+.error-state span {
+  color: #9a3412;
+}
+
 .loading-state {
   align-items: center;
   background: var(--taskflow-surface-soft);
@@ -207,8 +227,7 @@ main {
 
 .auth-page {
   background:
-    linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(15, 118, 110, 0.08)),
-    var(--taskflow-bg);
+    linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(15, 118, 110, 0.08)), var(--taskflow-bg);
   min-height: 100vh;
   display: flex;
   align-items: center;

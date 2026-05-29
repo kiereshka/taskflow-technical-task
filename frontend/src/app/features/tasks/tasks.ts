@@ -6,6 +6,13 @@ import { CategoryService } from '../../services/category.service';
 import { TaskItem } from '../../models/task.models';
 import { Category } from '../../models/category.models';
 
+interface PaginationItem {
+  label: string;
+  page?: number;
+  isCurrent?: boolean;
+  isEllipsis?: boolean;
+}
+
 @Component({
   selector: 'app-tasks',
   imports: [FormsModule, NgFor, NgIf, NgClass, DatePipe],
@@ -38,9 +45,12 @@ export class Tasks implements OnInit {
   totalPages = 0;
 
   errorMessage = '';
+  categoriesErrorMessage = '';
+  hasTaskLoadError = false;
   successMessage = '';
   isLoading = false;
   isSubmitting = false;
+  pendingTaskIds = new Set<number>();
 
   ngOnInit(): void {
     this.loadCategories();
@@ -64,13 +74,15 @@ export class Tasks implements OnInit {
   }
 
   loadCategories(): void {
+    this.categoriesErrorMessage = '';
+
     this.categoryService.getAll().subscribe({
       next: (categories) => {
         this.categories = categories;
         this.cdr.markForCheck();
       },
       error: (error) => {
-        this.errorMessage = error.error?.message || 'Failed to load categories.';
+        this.categoriesErrorMessage = error.error?.message || 'Failed to load categories.';
         this.cdr.markForCheck();
       },
     });
@@ -79,6 +91,7 @@ export class Tasks implements OnInit {
   loadTasks(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.hasTaskLoadError = false;
 
     this.taskService
       .getPaged({
@@ -100,6 +113,7 @@ export class Tasks implements OnInit {
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Failed to load tasks.';
+          this.hasTaskLoadError = true;
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -107,6 +121,10 @@ export class Tasks implements OnInit {
   }
 
   submit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
+
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -171,6 +189,10 @@ export class Tasks implements OnInit {
   }
 
   startEdit(task: TaskItem): void {
+    if (this.isTaskPending(task)) {
+      return;
+    }
+
     this.editingTaskId = task.id;
     this.title = task.title;
     this.description = task.description || '';
@@ -186,6 +208,12 @@ export class Tasks implements OnInit {
   }
 
   toggleCompleted(task: TaskItem): void {
+    if (this.pendingTaskIds.has(task.id)) {
+      return;
+    }
+
+    this.pendingTaskIds.add(task.id);
+
     this.taskService
       .update(task.id, {
         title: task.title,
@@ -196,25 +224,34 @@ export class Tasks implements OnInit {
       })
       .subscribe({
         next: () => {
+          this.pendingTaskIds.delete(task.id);
           this.loadTasks();
           this.cdr.markForCheck();
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Failed to update task.';
+          this.pendingTaskIds.delete(task.id);
           this.cdr.markForCheck();
         },
       });
   }
 
   deleteTask(task: TaskItem): void {
+    if (this.pendingTaskIds.has(task.id)) {
+      return;
+    }
+
     const confirmed = confirm(`Delete task "${task.title}"?`);
 
     if (!confirmed) {
       return;
     }
 
+    this.pendingTaskIds.add(task.id);
+
     this.taskService.delete(task.id).subscribe({
       next: () => {
+        this.pendingTaskIds.delete(task.id);
         this.successMessage = 'Task deleted.';
 
         if (this.tasks.length === 1 && this.page > 1) {
@@ -226,17 +263,26 @@ export class Tasks implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to delete task.';
+        this.pendingTaskIds.delete(task.id);
         this.cdr.markForCheck();
       },
     });
   }
 
   applyFilters(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.page = 1;
     this.loadTasks();
   }
 
   clearFilters(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.search = '';
     this.selectedCategoryId = null;
     this.selectedStatus = null;
@@ -245,13 +291,17 @@ export class Tasks implements OnInit {
   }
 
   changePageSize(value: string): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.pageSize = Number(value);
     this.page = 1;
     this.loadTasks();
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages || page === this.page) {
+    if (this.isLoading || page < 1 || page > this.totalPages || page === this.page) {
       return;
     }
 
@@ -311,8 +361,49 @@ export class Tasks implements OnInit {
     return 'status-active';
   }
 
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
+  get paginationItems(): PaginationItem[] {
+    if (this.totalPages <= 7) {
+      return Array.from({ length: this.totalPages }, (_, index) => this.createPageItem(index + 1));
+    }
+
+    const visiblePages = new Set<number>([1, this.totalPages]);
+    const windowStart = Math.max(2, this.page - 1);
+    const windowEnd = Math.min(this.totalPages - 1, this.page + 1);
+
+    if (this.page <= 3) {
+      [2, 3, 4].forEach((pageNumber) => visiblePages.add(pageNumber));
+    } else if (this.page >= this.totalPages - 2) {
+      [this.totalPages - 3, this.totalPages - 2, this.totalPages - 1].forEach((pageNumber) =>
+        visiblePages.add(pageNumber),
+      );
+    } else {
+      for (let pageNumber = windowStart; pageNumber <= windowEnd; pageNumber += 1) {
+        visiblePages.add(pageNumber);
+      }
+    }
+
+    const sortedPages = [...visiblePages]
+      .filter((pageNumber) => pageNumber >= 1 && pageNumber <= this.totalPages)
+      .sort((firstPage, secondPage) => firstPage - secondPage);
+
+    return sortedPages.reduce<PaginationItem[]>((items, pageNumber, index) => {
+      const previousPage = sortedPages[index - 1];
+
+      if (previousPage && pageNumber - previousPage > 1) {
+        items.push({
+          label: '...',
+          isEllipsis: true,
+        });
+      }
+
+      items.push(this.createPageItem(pageNumber));
+
+      return items;
+    }, []);
+  }
+
+  isTaskPending(task: TaskItem): boolean {
+    return this.pendingTaskIds.has(task.id);
   }
 
   private resetForm(): void {
@@ -338,5 +429,13 @@ export class Tasks implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today;
+  }
+
+  private createPageItem(pageNumber: number): PaginationItem {
+    return {
+      label: pageNumber.toString(),
+      page: pageNumber,
+      isCurrent: pageNumber === this.page,
+    };
   }
 }

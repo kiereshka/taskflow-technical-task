@@ -32,6 +32,69 @@
   color: #2563eb;
 }
 
+.latest-item {
+  align-items: flex-start;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  justify-content: initial;
+}
+
+.latest-item-primary {
+  border-color: #93c5fd;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.1);
+}
+
+.latest-status-icon {
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #2563eb;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.latest-status-icon.completed {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #16a34a;
+}
+
+.latest-task-content {
+  min-width: 0;
+}
+
+.latest-title-row {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+}
+
+.latest-status-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  flex: 0 0 auto;
+}
+
+.latest-meta {
+  color: #64748b;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  gap: 0.65rem;
+  margin-top: 0.45rem;
+}
+
+.latest-meta span {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
 .due-badge {
   background: #eff6ff;
   color: #1d4ed8;

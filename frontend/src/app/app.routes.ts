@@ -5,6 +5,7 @@ import { Tasks } from './features/tasks/tasks';
 import { Categories } from './features/categories/categories';
 import { Dashboard } from './features/dashboard/dashboard';
 import { authGuard, guestGuard } from './guards/auth.guard';
+import { NotFound } from './shared/not-found/not-found';
 
 export const routes: Routes = [
   {
@@ -39,6 +40,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'tasks',
+    component: NotFound,
   },
 ];

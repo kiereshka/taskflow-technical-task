@@ -21,13 +21,36 @@ export class Register {
   isLoading = false;
 
   submit(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.errorMessage = '';
+
+    const email = this.email.trim();
+    const password = this.password;
+
+    if (!email || !password) {
+      this.errorMessage = 'Email and password are required.';
+      return;
+    }
+
+    if (!this.isValidEmail(email)) {
+      this.errorMessage = 'Enter a valid email address.';
+      return;
+    }
+
+    if (password.length < 6) {
+      this.errorMessage = 'Password must be at least 6 characters.';
+      return;
+    }
+
     this.isLoading = true;
 
     this.authService
       .register({
-        email: this.email,
-        password: this.password,
+        email,
+        password,
       })
       .subscribe({
         next: () => {
@@ -41,5 +64,9 @@ export class Register {
           this.cdr.markForCheck();
         },
       });
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 }

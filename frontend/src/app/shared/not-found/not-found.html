@@ -1,0 +1,30 @@
+<section class="container page-shell">
+  <div class="not-found-shell app-card">
+    <div class="not-found-icon">
+      <i class="bi bi-signpost-split"></i>
+    </div>
+
+    <p class="eyebrow">Page not found</p>
+    <h1>We could not find that page.</h1>
+    <p class="not-found-copy">
+      The address may be outdated, misspelled or unavailable for this workspace.
+    </p>
+
+    <div class="not-found-actions">
+      <a class="btn btn-primary btn-icon" routerLink="/tasks" *ngIf="isLoggedIn">
+        <i class="bi bi-list-check"></i>
+        Go to tasks
+      </a>
+
+      <a class="btn btn-primary btn-icon" routerLink="/login" *ngIf="!isLoggedIn">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Sign in
+      </a>
+
+      <a class="btn btn-outline-secondary btn-icon" routerLink="/dashboard" *ngIf="isLoggedIn">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+      </a>
+    </div>
+  </div>
+</section>

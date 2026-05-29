@@ -3,7 +3,9 @@
     <div>
       <p class="eyebrow">Workspace</p>
       <h1 class="mb-1">Tasks</h1>
-      <p class="page-subtitle">Plan priorities, track status, search across work and keep every category moving.</p>
+      <p class="page-subtitle">
+        Plan priorities, track status, search across work and keep every category moving.
+      </p>
     </div>
 
     <div class="task-progress">
@@ -48,6 +50,24 @@
 
   <div class="alert alert-danger" *ngIf="errorMessage">
     {{ errorMessage }}
+  </div>
+
+  <div
+    class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2"
+    *ngIf="categoriesErrorMessage"
+  >
+    <span
+      >{{ categoriesErrorMessage }} Category options may be unavailable until the connection is
+      restored.</span
+    >
+    <button
+      class="btn btn-outline-warning btn-sm btn-icon"
+      type="button"
+      (click)="loadCategories()"
+    >
+      <i class="bi bi-arrow-clockwise"></i>
+      Retry
+    </button>
   </div>
 
   <div class="alert alert-success" *ngIf="successMessage">
@@ -111,12 +131,16 @@
               name="categoryId"
               [(ngModel)]="categoryId"
               [disabled]="isSubmitting"
+              [class.is-invalid]="categoriesErrorMessage"
             >
               <option [ngValue]="null">No category</option>
               <option *ngFor="let category of categories" [ngValue]="category.id">
                 {{ category.name }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="categoriesErrorMessage">
+              Categories could not be loaded.
+            </div>
           </div>
 
           <div class="col-12" *ngIf="editingTaskId">
@@ -129,14 +153,16 @@
                 [(ngModel)]="isCompleted"
                 [disabled]="isSubmitting"
               />
-              <label class="form-check-label" for="isCompleted">
-                Completed
-              </label>
+              <label class="form-check-label" for="isCompleted"> Completed </label>
             </div>
           </div>
 
           <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary btn-icon flex-fill" type="submit" [disabled]="isSubmitting">
+            <button
+              class="btn btn-primary btn-icon flex-fill"
+              type="submit"
+              [disabled]="isSubmitting"
+            >
               <i class="bi bi-check2-circle"></i>
               {{ isSubmitting ? 'Saving...' : editingTaskId ? 'Update task' : 'Create task' }}
             </button>
@@ -196,7 +222,12 @@
 
           <div class="col-lg-2 col-md-6">
             <label class="form-label">Page size</label>
-            <select class="form-select" name="pageSize" [ngModel]="pageSize" (ngModelChange)="changePageSize($event)">
+            <select
+              class="form-select"
+              name="pageSize"
+              [ngModel]="pageSize"
+              (ngModelChange)="changePageSize($event)"
+            >
               <option [ngValue]="10">10</option>
               <option [ngValue]="20">20</option>
               <option [ngValue]="50">50</option>
@@ -204,12 +235,17 @@
           </div>
 
           <div class="col-12 d-flex gap-2 justify-content-end">
-            <button class="btn btn-outline-primary btn-icon" type="submit">
+            <button class="btn btn-outline-primary btn-icon" type="submit" [disabled]="isLoading">
               <i class="bi bi-funnel"></i>
               Apply
             </button>
 
-            <button class="btn btn-outline-secondary btn-icon" type="button" (click)="clearFilters()">
+            <button
+              class="btn btn-outline-secondary btn-icon"
+              type="button"
+              (click)="clearFilters()"
+              [disabled]="isLoading"
+            >
               <i class="bi bi-x-circle"></i>
               Clear
             </button>
@@ -233,13 +269,27 @@
           <span>Loading tasks...</span>
         </div>
 
-        <div *ngIf="!isLoading && tasks.length === 0" class="empty-state">
+        <div *ngIf="!isLoading && hasTaskLoadError" class="error-state">
+          <i class="bi bi-exclamation-triangle"></i>
+          <strong>Tasks could not be loaded.</strong>
+          <span>Please check the connection and try again.</span>
+          <button
+            class="btn btn-outline-primary btn-sm btn-icon"
+            type="button"
+            (click)="loadTasks()"
+          >
+            <i class="bi bi-arrow-clockwise"></i>
+            Retry
+          </button>
+        </div>
+
+        <div *ngIf="!isLoading && !hasTaskLoadError && tasks.length === 0" class="empty-state">
           <i class="bi bi-inbox"></i>
           <strong>No tasks found.</strong>
           <span>Create your first task or adjust your filters.</span>
         </div>
 
-        <div class="task-list" *ngIf="!isLoading && tasks.length > 0">
+        <div class="task-list" *ngIf="!isLoading && !hasTaskLoadError && tasks.length > 0">
           <div
             class="task-item"
             *ngFor="let task of tasks"
@@ -251,6 +301,7 @@
                 type="checkbox"
                 [checked]="task.isCompleted"
                 (change)="toggleCompleted(task)"
+                [disabled]="isTaskPending(task)"
                 [attr.aria-label]="'Toggle ' + task.title"
               />
             </div>
@@ -281,12 +332,22 @@
             </div>
 
             <div class="task-actions">
-              <button class="btn btn-outline-primary btn-sm btn-icon" type="button" (click)="startEdit(task)">
+              <button
+                class="btn btn-outline-primary btn-sm btn-icon"
+                type="button"
+                (click)="startEdit(task)"
+                [disabled]="isTaskPending(task)"
+              >
                 <i class="bi bi-pencil"></i>
                 Edit
               </button>
 
-              <button class="btn btn-outline-danger btn-sm btn-icon" type="button" (click)="deleteTask(task)">
+              <button
+                class="btn btn-outline-danger btn-sm btn-icon"
+                type="button"
+                (click)="deleteTask(task)"
+                [disabled]="isTaskPending(task)"
+              >
                 <i class="bi bi-trash"></i>
                 Delete
               </button>
@@ -294,30 +355,48 @@
           </div>
         </div>
 
-        <nav class="mt-4" *ngIf="totalPages > 1" aria-label="Task pages">
-          <ul class="pagination mb-0 flex-wrap">
-            <li class="page-item" [class.disabled]="page === 1">
-              <button class="page-link" type="button" (click)="goToPage(page - 1)">
-                Previous
-              </button>
-            </li>
+        <nav class="pagination-shell" *ngIf="totalPages > 1" aria-label="Task pages">
+          <button
+            class="pagination-arrow"
+            type="button"
+            (click)="goToPage(page - 1)"
+            [disabled]="page === 1 || isLoading"
+            aria-label="Previous page"
+          >
+            <i class="bi bi-chevron-left"></i>
+            <span>Previous</span>
+          </button>
 
-            <li
-              class="page-item"
-              *ngFor="let pageNumber of pages"
-              [class.active]="pageNumber === page"
-            >
-              <button class="page-link" type="button" (click)="goToPage(pageNumber)">
-                {{ pageNumber }}
-              </button>
-            </li>
+          <div class="app-pagination" aria-label="Pagination">
+            <ng-container *ngFor="let item of paginationItems">
+              <span class="pagination-ellipsis" *ngIf="item.isEllipsis">
+                {{ item.label }}
+              </span>
 
-            <li class="page-item" [class.disabled]="page === totalPages">
-              <button class="page-link" type="button" (click)="goToPage(page + 1)">
-                Next
+              <button
+                class="pagination-page"
+                type="button"
+                *ngIf="!item.isEllipsis && item.page"
+                (click)="goToPage(item.page || page)"
+                [class.active]="item.isCurrent"
+                [disabled]="item.isCurrent || isLoading"
+                [attr.aria-current]="item.isCurrent ? 'page' : null"
+              >
+                {{ item.label }}
               </button>
-            </li>
-          </ul>
+            </ng-container>
+          </div>
+
+          <button
+            class="pagination-arrow"
+            type="button"
+            (click)="goToPage(page + 1)"
+            [disabled]="page === totalPages || isLoading"
+            aria-label="Next page"
+          >
+            <span>Next</span>
+            <i class="bi bi-chevron-right"></i>
+          </button>
         </nav>
       </div>
     </div>

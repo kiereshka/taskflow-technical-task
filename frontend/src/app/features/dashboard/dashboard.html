@@ -3,7 +3,9 @@
     <div>
       <p class="eyebrow">Command center</p>
       <h1 class="mb-1">Dashboard</h1>
-      <p class="page-subtitle">A focused overview of your workload, near-term priorities and recent execution.</p>
+      <p class="page-subtitle">
+        A focused overview of your workload, near-term priorities and recent execution.
+      </p>
     </div>
 
     <div class="focus-pill">
@@ -21,7 +23,17 @@
     <span>Loading dashboard...</span>
   </div>
 
-  <div class="row g-3 mb-4">
+  <div *ngIf="!isLoading && hasLoadError" class="error-state mb-4">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Dashboard could not be loaded.</strong>
+    <span>Please check the connection and try again.</span>
+    <button class="btn btn-outline-primary btn-sm btn-icon" type="button" (click)="loadOverview()">
+      <i class="bi bi-arrow-clockwise"></i>
+      Retry
+    </button>
+  </div>
+
+  <div class="row g-3 mb-4" *ngIf="!isLoading && !hasLoadError">
     <div class="col-sm-6 col-xl-3">
       <div class="metric-card">
         <div class="metric-label">Total tasks</div>
@@ -55,7 +67,7 @@
     </div>
   </div>
 
-  <div class="row g-4">
+  <div class="row g-4" *ngIf="!isLoading && !hasLoadError">
     <div class="col-lg-4">
       <div class="app-card p-4 h-100">
         <div class="card-title-row">
@@ -73,7 +85,13 @@
             <span>Completion</span>
             <strong>{{ completionRate }}%</strong>
           </div>
-          <div class="progress" role="progressbar" [attr.aria-valuenow]="completionRate" aria-valuemin="0" aria-valuemax="100">
+          <div
+            class="progress"
+            role="progressbar"
+            [attr.aria-valuenow]="completionRate"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
             <div class="progress-bar" [style.width.%]="completionRate"></div>
           </div>
         </div>
@@ -120,7 +138,9 @@
           <div class="overview-item" *ngFor="let task of upcomingTasks">
             <div>
               <h3 class="h6 mb-1">{{ task.title }}</h3>
-              <span class="text-muted small" *ngIf="task.categoryName">{{ task.categoryName }}</span>
+              <span class="text-muted small" *ngIf="task.categoryName">{{
+                task.categoryName
+              }}</span>
             </div>
             <span class="badge due-badge">{{ task.dueDate | date: 'mediumDate' }}</span>
           </div>
@@ -140,25 +160,46 @@
           </span>
         </div>
 
-        <div *ngIf="!isLoading && recentTasks.length === 0" class="empty-state">
+        <div *ngIf="!isLoading && latestTasks.length === 0" class="empty-state">
           <i class="bi bi-list-task"></i>
           <strong>No tasks yet.</strong>
           <span>Create a task to start filling your workspace.</span>
         </div>
 
-        <div class="overview-list" *ngIf="recentTasks.length > 0">
-          <div class="overview-item compact" *ngFor="let task of recentTasks">
-            <div>
-              <h3 class="h6 mb-1">{{ task.title }}</h3>
-              <span class="text-muted small">
-                {{ task.isCompleted ? 'Completed' : 'Active' }}
-              </span>
+        <div class="overview-list" *ngIf="latestTasks.length > 0">
+          <div
+            class="overview-item latest-item"
+            *ngFor="let task of latestTasks; let isFirst = first"
+            [class.latest-item-primary]="isFirst"
+          >
+            <span class="latest-status-icon" [class.completed]="task.isCompleted">
+              <i
+                class="bi"
+                [class.bi-check2]="task.isCompleted"
+                [class.bi-circle]="!task.isCompleted"
+              ></i>
+            </span>
+
+            <div class="latest-task-content">
+              <div class="latest-title-row">
+                <h3 class="h6 mb-0">{{ task.title }}</h3>
+                <span class="badge latest-status-badge">
+                  {{ task.isCompleted ? 'Completed' : 'Active' }}
+                </span>
+              </div>
+
+              <div class="latest-meta">
+                <span *ngIf="task.categoryName">
+                  <i class="bi bi-folder2-open"></i>
+                  {{ task.categoryName }}
+                </span>
+                <span>
+                  <i class="bi bi-clock-history"></i>
+                  {{ getActivityLabel(task) }}
+                  {{ getActivityDate(task) | date: 'MMM d, y, HH:mm' }}
+                </span>
+              </div>
             </div>
-            <i
-              class="bi"
-              [class.bi-check-circle-fill]="task.isCompleted"
-              [class.bi-circle]="!task.isCompleted"
-            ></i>
           </div>
         </div>
       </div>

@@ -18,9 +18,11 @@ export class Categories implements OnInit {
   name = '';
   editingCategoryId: number | null = null;
   errorMessage = '';
+  hasLoadError = false;
   successMessage = '';
   isLoading = false;
   isSubmitting = false;
+  pendingCategoryIds = new Set<number>();
 
   ngOnInit(): void {
     this.loadCategories();
@@ -29,6 +31,7 @@ export class Categories implements OnInit {
   loadCategories(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.hasLoadError = false;
 
     this.categoryService.getAll().subscribe({
       next: (categories) => {
@@ -38,6 +41,7 @@ export class Categories implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to load categories.';
+        this.hasLoadError = true;
         this.isLoading = false;
         this.cdr.markForCheck();
       },
@@ -45,6 +49,10 @@ export class Categories implements OnInit {
   }
 
   submit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
+
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -64,6 +72,10 @@ export class Categories implements OnInit {
   }
 
   startEdit(category: Category): void {
+    if (this.isCategoryPending(category)) {
+      return;
+    }
+
     this.editingCategoryId = category.id;
     this.name = category.name;
     this.errorMessage = '';
@@ -78,6 +90,10 @@ export class Categories implements OnInit {
   }
 
   deleteCategory(category: Category): void {
+    if (this.pendingCategoryIds.has(category.id)) {
+      return;
+    }
+
     const confirmed = confirm(
       `Delete category "${category.name}"? Tasks in this category will become uncategorized.`,
     );
@@ -86,17 +102,25 @@ export class Categories implements OnInit {
       return;
     }
 
+    this.pendingCategoryIds.add(category.id);
+
     this.categoryService.delete(category.id).subscribe({
       next: () => {
+        this.pendingCategoryIds.delete(category.id);
         this.successMessage = 'Category deleted.';
         this.loadCategories();
         this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to delete category.';
+        this.pendingCategoryIds.delete(category.id);
         this.cdr.markForCheck();
       },
     });
+  }
+
+  isCategoryPending(category: Category): boolean {
+    return this.pendingCategoryIds.has(category.id);
   }
 
   private createCategory(name: string): void {

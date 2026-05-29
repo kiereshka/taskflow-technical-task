@@ -141,6 +141,7 @@ public class TaskRepository : ITaskRepository
             .Include(task => task.Category)
             .Where(task => task.UserId == userId)
             .OrderByDescending(task => task.UpdatedAt ?? task.CreatedAt)
+            .ThenByDescending(task => task.Id)
             .Take(5)
             .Select(task => new TaskResponseDto
             {
