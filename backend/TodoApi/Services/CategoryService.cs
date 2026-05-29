@@ -34,17 +34,7 @@ public class CategoryService : ICategoryService
 
     public async Task<CategoryResponseDto> CreateAsync(CategoryCreateDto request, int userId)
     {
-        var name = request.Name.Trim();
-
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Category name is required.");
-        }
-
-        if (name.Length > 100)
-        {
-            throw new ArgumentException("Category name cannot be longer than 100 characters.");
-        }
+        var name = NormalizeName(request.Name);
 
         var exists = await _categoryRepository.ExistsByNameAsync(name, userId);
 
@@ -66,17 +56,7 @@ public class CategoryService : ICategoryService
 
     public async Task<CategoryResponseDto> UpdateAsync(int id, CategoryUpdateDto request, int userId)
     {
-        var name = request.Name.Trim();
-
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Category name is required.");
-        }
-
-        if (name.Length > 100)
-        {
-            throw new ArgumentException("Category name cannot be longer than 100 characters.");
-        }
+        var name = NormalizeName(request.Name);
 
         var existingCategory = await _categoryRepository.GetByIdAsync(id, userId);
 
@@ -124,5 +104,22 @@ public class CategoryService : ICategoryService
             Id = category.Id,
             Name = category.Name
         };
+    }
+
+    private static string NormalizeName(string? value)
+    {
+        var name = value?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Category name is required.");
+        }
+
+        if (name.Length > 100)
+        {
+            throw new ArgumentException("Category name cannot be longer than 100 characters.");
+        }
+
+        return name;
     }
 }

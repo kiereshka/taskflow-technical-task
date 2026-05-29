@@ -6,6 +6,14 @@ namespace TodoApi.Services;
 
 public class TaskService : ITaskService
 {
+    private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "active",
+        "overdue",
+        "today",
+        "completed"
+    };
+
     private readonly ITaskRepository _taskRepository;
     private readonly ICategoryRepository _categoryRepository;
 
@@ -17,6 +25,8 @@ public class TaskService : ITaskService
 
     public async Task<PagedResultDto<TaskResponseDto>> GetPagedAsync(TaskQueryParametersDto query, int userId)
     {
+        ValidateQuery(query);
+
         var pagedTasks = await _taskRepository.GetPagedAsync(query, userId);
 
         return new PagedResultDto<TaskResponseDto>
@@ -143,7 +153,27 @@ public class TaskService : ITaskService
             return null;
         }
 
-        return value.Trim();
+        var normalizedValue = value.Trim();
+
+        if (normalizedValue.Length > 1000)
+        {
+            throw new ArgumentException("Task description cannot be longer than 1000 characters.");
+        }
+
+        return normalizedValue;
+    }
+
+    private static void ValidateQuery(TaskQueryParametersDto query)
+    {
+        if (string.IsNullOrWhiteSpace(query.Status))
+        {
+            return;
+        }
+
+        if (!AllowedStatuses.Contains(query.Status.Trim()))
+        {
+            throw new ArgumentException("Task status filter is invalid.");
+        }
     }
 
     private static TaskResponseDto MapToResponseDto(TaskItem task)

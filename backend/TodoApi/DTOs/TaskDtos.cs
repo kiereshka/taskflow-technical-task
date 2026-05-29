@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TodoApi.DTOs;
 
 public class TaskResponseDto
@@ -38,8 +40,11 @@ public class TaskOverviewDto
 
 public class TaskCreateDto
 {
+    [Required]
+    [StringLength(200)]
     public string Title { get; set; } = string.Empty;
 
+    [StringLength(1000)]
     public string? Description { get; set; }
 
     public DateTime? DueDate { get; set; }
@@ -49,8 +54,11 @@ public class TaskCreateDto
 
 public class TaskUpdateDto
 {
+    [Required]
+    [StringLength(200)]
     public string Title { get; set; } = string.Empty;
 
+    [StringLength(1000)]
     public string? Description { get; set; }
 
     public bool IsCompleted { get; set; }

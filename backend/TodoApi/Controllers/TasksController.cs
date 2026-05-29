@@ -21,11 +21,18 @@ public class TasksController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResultDto<TaskResponseDto>>> GetPaged([FromQuery] TaskQueryParametersDto query)
     {
-        var userId = GetCurrentUserId();
+        try
+        {
+            var userId = GetCurrentUserId();
 
-        var tasks = await _taskService.GetPagedAsync(query, userId);
+            var tasks = await _taskService.GetPagedAsync(query, userId);
 
-        return Ok(tasks);
+            return Ok(tasks);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [HttpGet("overview")]

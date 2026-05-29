@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -12,6 +13,24 @@ using TodoApi.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var firstError = context.ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .Select(entry => entry.Value!.Errors.First().ErrorMessage)
+            .FirstOrDefault();
+
+        return new BadRequestObjectResult(new
+        {
+            message = string.IsNullOrWhiteSpace(firstError)
+                ? "Request validation failed."
+                : firstError
+        });
+    };
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

@@ -33,7 +33,13 @@ export class Tasks implements OnInit {
   categoryId: number | null = null;
   isCompleted = false;
 
-  editingTaskId: number | null = null;
+  editingTask: TaskItem | null = null;
+  editTitle = '';
+  editDescription = '';
+  editDueDate = '';
+  editCategoryId: number | null = null;
+  editIsCompleted = false;
+  taskToDelete: TaskItem | null = null;
 
   search = '';
   selectedCategoryId: number | null = null;
@@ -51,6 +57,8 @@ export class Tasks implements OnInit {
   isLoading = false;
   isSubmitting = false;
   pendingTaskIds = new Set<number>();
+  readonly titleMaxLength = 200;
+  readonly descriptionMaxLength = 1000;
 
   ngOnInit(): void {
     this.loadCategories();
@@ -135,40 +143,25 @@ export class Tasks implements OnInit {
       return;
     }
 
-    this.isSubmitting = true;
-    const dueDateValue = this.dueDate ? new Date(this.dueDate).toISOString() : null;
-
-    if (this.editingTaskId) {
-      this.taskService
-        .update(this.editingTaskId, {
-          title: trimmedTitle,
-          description: this.description.trim() || null,
-          isCompleted: this.isCompleted,
-          dueDate: dueDateValue,
-          categoryId: this.categoryId,
-        })
-        .subscribe({
-          next: () => {
-            this.successMessage = 'Task updated.';
-            this.isSubmitting = false;
-            this.resetForm();
-            this.loadTasks();
-            this.cdr.markForCheck();
-          },
-          error: (error) => {
-            this.errorMessage = error.error?.message || 'Failed to update task.';
-            this.isSubmitting = false;
-            this.cdr.markForCheck();
-          },
-        });
-
+    if (trimmedTitle.length > this.titleMaxLength) {
+      this.errorMessage = `Task title cannot be longer than ${this.titleMaxLength} characters.`;
       return;
     }
+
+    const trimmedDescription = this.description.trim();
+
+    if (trimmedDescription.length > this.descriptionMaxLength) {
+      this.errorMessage = `Task description cannot be longer than ${this.descriptionMaxLength} characters.`;
+      return;
+    }
+
+    this.isSubmitting = true;
+    const dueDateValue = this.dueDate ? new Date(this.dueDate).toISOString() : null;
 
     this.taskService
       .create({
         title: trimmedTitle,
-        description: this.description.trim() || null,
+        description: trimmedDescription || null,
         dueDate: dueDateValue,
         categoryId: this.categoryId,
       })
@@ -193,18 +186,72 @@ export class Tasks implements OnInit {
       return;
     }
 
-    this.editingTaskId = task.id;
-    this.title = task.title;
-    this.description = task.description || '';
-    this.isCompleted = task.isCompleted;
-    this.categoryId = task.categoryId || null;
-    this.dueDate = task.dueDate ? task.dueDate.substring(0, 10) : '';
+    this.editingTask = task;
+    this.editTitle = task.title;
+    this.editDescription = task.description || '';
+    this.editIsCompleted = task.isCompleted;
+    this.editCategoryId = task.categoryId || null;
+    this.editDueDate = task.dueDate ? task.dueDate.substring(0, 10) : '';
     this.errorMessage = '';
     this.successMessage = '';
   }
 
   cancelEdit(): void {
-    this.resetForm();
+    this.resetEditForm();
+  }
+
+  submitEdit(): void {
+    if (this.isSubmitting || !this.editingTask) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const trimmedTitle = this.editTitle.trim();
+
+    if (!trimmedTitle) {
+      this.errorMessage = 'Task title is required.';
+      return;
+    }
+
+    if (trimmedTitle.length > this.titleMaxLength) {
+      this.errorMessage = `Task title cannot be longer than ${this.titleMaxLength} characters.`;
+      return;
+    }
+
+    const trimmedDescription = this.editDescription.trim();
+
+    if (trimmedDescription.length > this.descriptionMaxLength) {
+      this.errorMessage = `Task description cannot be longer than ${this.descriptionMaxLength} characters.`;
+      return;
+    }
+
+    this.isSubmitting = true;
+    const dueDateValue = this.editDueDate ? new Date(this.editDueDate).toISOString() : null;
+
+    this.taskService
+      .update(this.editingTask.id, {
+        title: trimmedTitle,
+        description: trimmedDescription || null,
+        isCompleted: this.editIsCompleted,
+        dueDate: dueDateValue,
+        categoryId: this.editCategoryId,
+      })
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Task updated.';
+          this.isSubmitting = false;
+          this.resetEditForm();
+          this.loadTasks();
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.message || 'Failed to update task.';
+          this.isSubmitting = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   toggleCompleted(task: TaskItem): void {
@@ -241,17 +288,25 @@ export class Tasks implements OnInit {
       return;
     }
 
-    const confirmed = confirm(`Delete task "${task.title}"?`);
+    this.taskToDelete = task;
+  }
 
-    if (!confirmed) {
+  cancelDelete(): void {
+    this.taskToDelete = null;
+  }
+
+  confirmDeleteTask(): void {
+    if (!this.taskToDelete || this.pendingTaskIds.has(this.taskToDelete.id)) {
       return;
     }
 
+    const task = this.taskToDelete;
     this.pendingTaskIds.add(task.id);
 
     this.taskService.delete(task.id).subscribe({
       next: () => {
         this.pendingTaskIds.delete(task.id);
+        this.taskToDelete = null;
         this.successMessage = 'Task deleted.';
 
         if (this.tasks.length === 1 && this.page > 1) {
@@ -264,6 +319,7 @@ export class Tasks implements OnInit {
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to delete task.';
         this.pendingTaskIds.delete(task.id);
+        this.taskToDelete = null;
         this.cdr.markForCheck();
       },
     });
@@ -407,12 +463,20 @@ export class Tasks implements OnInit {
   }
 
   private resetForm(): void {
-    this.editingTaskId = null;
     this.title = '';
     this.description = '';
     this.dueDate = '';
     this.categoryId = null;
     this.isCompleted = false;
+  }
+
+  private resetEditForm(): void {
+    this.editingTask = null;
+    this.editTitle = '';
+    this.editDescription = '';
+    this.editDueDate = '';
+    this.editCategoryId = null;
+    this.editIsCompleted = false;
   }
 
   private toDateOnly(value?: string | null): Date | null {

@@ -29,7 +29,7 @@
         <div class="card-title-row">
           <div>
             <p class="eyebrow mb-1">Category editor</p>
-            <h2 class="h5 mb-0">{{ editingCategoryId ? 'Edit category' : 'Create category' }}</h2>
+            <h2 class="h5 mb-0">Create category</h2>
           </div>
           <span class="card-title-icon">
             <i class="bi bi-folder-plus"></i>
@@ -44,8 +44,10 @@
               name="name"
               [(ngModel)]="name"
               placeholder="For example: Work"
+              [attr.maxlength]="nameMaxLength"
               [disabled]="isSubmitting"
             />
+            <div class="form-text text-end">{{ name.length }}/{{ nameMaxLength }}</div>
           </div>
 
           <div class="col-12 d-flex gap-2">
@@ -55,17 +57,7 @@
               [disabled]="isSubmitting"
             >
               <i class="bi bi-check2-circle"></i>
-              {{ isSubmitting ? 'Saving...' : editingCategoryId ? 'Update' : 'Create' }}
-            </button>
-
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              *ngIf="editingCategoryId"
-              (click)="cancelEdit()"
-              [disabled]="isSubmitting"
-            >
-              Cancel
+              {{ isSubmitting ? 'Saving...' : 'Create' }}
             </button>
           </div>
         </form>
@@ -144,6 +136,105 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="editingCategory || categoryToDelete"></div>
+
+<div
+  class="modal fade show app-modal"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  *ngIf="editingCategory"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow mb-1">Category editor</p>
+          <h2 class="modal-title h5">Edit category</h2>
+        </div>
+        <button
+          class="btn-close"
+          type="button"
+          aria-label="Close"
+          (click)="cancelEdit()"
+          [disabled]="isSubmitting"
+        ></button>
+      </div>
+
+      <form (ngSubmit)="submitEdit()">
+        <div class="modal-body">
+          <label class="form-label">Category name</label>
+          <input
+            class="form-control"
+            name="editName"
+            [(ngModel)]="editName"
+            [attr.maxlength]="nameMaxLength"
+            [disabled]="isSubmitting"
+          />
+          <div class="form-text text-end">{{ editName.length }}/{{ nameMaxLength }}</div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            (click)="cancelEdit()"
+            [disabled]="isSubmitting"
+          >
+            Cancel
+          </button>
+          <button class="btn btn-primary btn-icon" type="submit" [disabled]="isSubmitting">
+            <i class="bi bi-check2-circle"></i>
+            {{ isSubmitting ? 'Saving...' : 'Save changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade show app-modal"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  *ngIf="categoryToDelete"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow mb-1">Confirm delete</p>
+          <h2 class="modal-title h5">Delete category?</h2>
+        </div>
+        <button
+          class="btn-close"
+          type="button"
+          aria-label="Close"
+          (click)="cancelDelete()"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-0">
+          Delete <strong>{{ categoryToDelete.name }}</strong
+          >? Tasks in this category will become uncategorized.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" type="button" (click)="cancelDelete()">
+          Cancel
+        </button>
+        <button class="btn btn-danger btn-icon" type="button" (click)="confirmDeleteCategory()">
+          <i class="bi bi-trash"></i>
+          Delete
+        </button>
       </div>
     </div>
   </div>

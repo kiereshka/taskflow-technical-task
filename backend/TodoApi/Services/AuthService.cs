@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -23,10 +24,7 @@ public class AuthService : IAuthService
     {
         var email = NormalizeEmail(request.Email);
 
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            throw new ArgumentException("Email is required.");
-        }
+        ValidateEmail(email);
 
         if (string.IsNullOrWhiteSpace(request.Password))
         {
@@ -64,6 +62,8 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
         var email = NormalizeEmail(request.Email);
+
+        ValidateEmail(email);
 
         var user = await _userRepository.GetByEmailAsync(email);
 
@@ -125,8 +125,30 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private static string NormalizeEmail(string email)
+    private static string NormalizeEmail(string? email)
     {
-        return email.Trim().ToLower();
+        return email?.Trim().ToLowerInvariant() ?? string.Empty;
+    }
+
+    private static void ValidateEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new ArgumentException("Email is required.");
+        }
+
+        try
+        {
+            var address = new MailAddress(email);
+
+            if (!string.Equals(address.Address, email, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new FormatException();
+            }
+        }
+        catch (FormatException)
+        {
+            throw new ArgumentException("Enter a valid email address.");
+        }
     }
 }

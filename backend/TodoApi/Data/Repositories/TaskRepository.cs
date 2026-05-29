@@ -67,6 +67,12 @@ public class TaskRepository : ITaskRepository
         };
 
         var totalItems = await tasksQuery.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        if (totalPages > 0 && page > totalPages)
+        {
+            page = totalPages;
+        }
 
         var items = await tasksQuery
             .OrderBy(task =>
@@ -84,8 +90,6 @@ public class TaskRepository : ITaskRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
         return new PagedResultDto<TaskItem>
         {

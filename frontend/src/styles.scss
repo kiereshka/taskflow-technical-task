@@ -225,6 +225,30 @@ main {
   border-color: var(--taskflow-primary-dark);
 }
 
+.app-modal {
+  display: block;
+}
+
+.app-modal .modal-content {
+  border: 1px solid var(--taskflow-border);
+  border-radius: 8px;
+  box-shadow: var(--taskflow-shadow);
+}
+
+.app-modal .modal-header,
+.app-modal .modal-footer {
+  border-color: var(--taskflow-border);
+}
+
+.app-modal .modal-title {
+  color: var(--taskflow-text);
+  font-weight: 750;
+}
+
+.app-modal .modal-body {
+  color: var(--taskflow-text);
+}
+
 .auth-page {
   background:
     linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(15, 118, 110, 0.08)), var(--taskflow-bg);

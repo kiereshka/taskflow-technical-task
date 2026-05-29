@@ -21,6 +21,10 @@ export class Navbar {
     return this.authService.getEmail();
   }
 
+  get homeLink(): string {
+    return this.isLoggedIn ? '/dashboard' : '/login';
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);

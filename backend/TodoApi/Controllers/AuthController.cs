@@ -45,5 +45,9 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = exception.Message });
         }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 }

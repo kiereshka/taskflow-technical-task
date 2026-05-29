@@ -16,13 +16,16 @@ export class Categories implements OnInit {
 
   categories: Category[] = [];
   name = '';
-  editingCategoryId: number | null = null;
+  editingCategory: Category | null = null;
+  editName = '';
+  categoryToDelete: Category | null = null;
   errorMessage = '';
   hasLoadError = false;
   successMessage = '';
   isLoading = false;
   isSubmitting = false;
   pendingCategoryIds = new Set<number>();
+  readonly nameMaxLength = 100;
 
   ngOnInit(): void {
     this.loadCategories();
@@ -63,8 +66,8 @@ export class Categories implements OnInit {
       return;
     }
 
-    if (this.editingCategoryId) {
-      this.updateCategory(this.editingCategoryId, trimmedName);
+    if (trimmedName.length > this.nameMaxLength) {
+      this.errorMessage = `Category name cannot be longer than ${this.nameMaxLength} characters.`;
       return;
     }
 
@@ -76,17 +79,40 @@ export class Categories implements OnInit {
       return;
     }
 
-    this.editingCategoryId = category.id;
-    this.name = category.name;
+    this.editingCategory = category;
+    this.editName = category.name;
     this.errorMessage = '';
     this.successMessage = '';
   }
 
   cancelEdit(): void {
-    this.editingCategoryId = null;
-    this.name = '';
+    this.editingCategory = null;
+    this.editName = '';
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  submitEdit(): void {
+    if (this.isSubmitting || !this.editingCategory) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const trimmedName = this.editName.trim();
+
+    if (!trimmedName) {
+      this.errorMessage = 'Category name is required.';
+      return;
+    }
+
+    if (trimmedName.length > this.nameMaxLength) {
+      this.errorMessage = `Category name cannot be longer than ${this.nameMaxLength} characters.`;
+      return;
+    }
+
+    this.updateCategory(this.editingCategory.id, trimmedName);
   }
 
   deleteCategory(category: Category): void {
@@ -94,19 +120,25 @@ export class Categories implements OnInit {
       return;
     }
 
-    const confirmed = confirm(
-      `Delete category "${category.name}"? Tasks in this category will become uncategorized.`,
-    );
+    this.categoryToDelete = category;
+  }
 
-    if (!confirmed) {
+  cancelDelete(): void {
+    this.categoryToDelete = null;
+  }
+
+  confirmDeleteCategory(): void {
+    if (!this.categoryToDelete || this.pendingCategoryIds.has(this.categoryToDelete.id)) {
       return;
     }
 
+    const category = this.categoryToDelete;
     this.pendingCategoryIds.add(category.id);
 
     this.categoryService.delete(category.id).subscribe({
       next: () => {
         this.pendingCategoryIds.delete(category.id);
+        this.categoryToDelete = null;
         this.successMessage = 'Category deleted.';
         this.loadCategories();
         this.cdr.markForCheck();
@@ -114,6 +146,7 @@ export class Categories implements OnInit {
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to delete category.';
         this.pendingCategoryIds.delete(category.id);
+        this.categoryToDelete = null;
         this.cdr.markForCheck();
       },
     });
@@ -148,7 +181,8 @@ export class Categories implements OnInit {
     this.categoryService.update(id, { name }).subscribe({
       next: () => {
         this.name = '';
-        this.editingCategoryId = null;
+        this.editingCategory = null;
+        this.editName = '';
         this.successMessage = 'Category updated.';
         this.isSubmitting = false;
         this.loadCategories();

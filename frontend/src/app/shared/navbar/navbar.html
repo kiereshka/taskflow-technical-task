@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg border-bottom sticky-top app-navbar">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" routerLink="/tasks">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" [routerLink]="homeLink">
       <span class="brand-mark">
         <i class="bi bi-check2"></i>
       </span>
@@ -11,12 +11,7 @@
     </a>
 
     <div class="d-flex align-items-center gap-1 gap-md-2 nav-cluster">
-      <a
-        class="nav-link"
-        routerLink="/dashboard"
-        routerLinkActive="active"
-        *ngIf="isLoggedIn"
-      >
+      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" *ngIf="isLoggedIn">
         <i class="bi bi-speedometer2"></i>
         Dashboard
       </a>
@@ -26,12 +21,7 @@
         Tasks
       </a>
 
-      <a
-        class="nav-link"
-        routerLink="/categories"
-        routerLinkActive="active"
-        *ngIf="isLoggedIn"
-      >
+      <a class="nav-link" routerLink="/categories" routerLinkActive="active" *ngIf="isLoggedIn">
         <i class="bi bi-folder2-open"></i>
         Categories
       </a>
@@ -41,7 +31,12 @@
         {{ email }}
       </span>
 
-      <button class="btn btn-outline-danger btn-sm btn-icon" type="button" *ngIf="isLoggedIn" (click)="logout()">
+      <button
+        class="btn btn-outline-danger btn-sm btn-icon"
+        type="button"
+        *ngIf="isLoggedIn"
+        (click)="logout()"
+      >
         <i class="bi bi-box-arrow-right"></i>
         <span class="d-none d-sm-inline">Logout</span>
       </button>
